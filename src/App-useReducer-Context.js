@@ -1,35 +1,57 @@
-import ampularium from "./data";
-import { useState } from "react";
+import ampularium from "./data"
+import { useReducer } from "react"
+
+const initialState = {
+  searchingMed: "",
+  filteredMed: [],
+}
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "setSearchingMed":
+      return { ...state, searchingMed: action.payload }
+
+    case "setFilteredMed":
+      return { ...state, filteredMed: action.payload }
+
+    case "refresh":
+      return initialState
+
+    default:
+      throw new Error("Invalid action type")
+  }
+}
 
 const App = (e) => {
-  const [searchingMed, setSearchingMed] = useState("");
-  const [filteredMed, setFilteredMed] = useState([]);
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { searchingMed, filteredMed } = state
 
   const setFirstWordBold = (result) => {
-    const words = result.split(" ");
-    const firstWord = words[0];
-    const restOfSentence = words.slice(1).join(" ");
+    const words = result.split(" ")
+    const firstWord = words[0]
+    const restOfSentence = words.slice(1).join(" ")
 
     return (
       <span>
-        <span style={{ fontWeight: "bold", fontSize: "15px"}}>{firstWord}</span>
+        <span style={{ fontWeight: "bold", fontSize: "15px" }}>
+          {firstWord}
+        </span>
         <span> {restOfSentence}</span>
       </span>
-    );
-  };
+    )
+  }
 
   const medsOnPage = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     const medsAfterFilter = ampularium.filter((meds) => {
-      return meds.nazov.toLowerCase().includes(searchingMed.toLowerCase());
-    });
+      return meds.nazov.toLowerCase().includes(searchingMed.toLowerCase())
+    })
 
-    if (searchingMed) {
-      setFilteredMed(medsAfterFilter);
-    }
-    setSearchingMed("");
-  };
+    dispatch({ type: "setFilteredMed", payload: medsAfterFilter })
+
+    dispatch({ type: "setSearchingMed", payload: "" })
+  }
 
   return (
     <section className="section">
@@ -39,7 +61,9 @@ const App = (e) => {
           type="text"
           placeholder="Search Med"
           value={searchingMed}
-          onChange={(e) => setSearchingMed(e.target.value)}
+          onChange={(e) =>
+            dispatch({ type: "setSearchingMed", payload: e.target.value })
+          }
         />
         <button className="submit-btn" onClick={medsOnPage}>
           Submit
@@ -59,7 +83,7 @@ const App = (e) => {
             nastupAodoznenieUcinku,
             NU,
             KI,
-          } = oneMed;
+          } = oneMed
 
           return (
             <div className="printed-med" key={id}>
@@ -74,15 +98,20 @@ const App = (e) => {
               <p>{setFirstWordBold(KI)}</p>
               <div className="div-selector"></div>
             </div>
-          );
+          )
         })}
       </div>
 
       <div className="refresh-btn-div">
-        <button className="refresh-btn" onClick={() => setFilteredMed([])}>Refresh</button>
+        <button
+          className="refresh-btn"
+          onClick={() => dispatch({ type: "refresh" })}
+        >
+          Refresh
+        </button>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default App;
+export default App
