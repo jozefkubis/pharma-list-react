@@ -14,9 +14,15 @@ function Form() {
           dispatch({ type: "setSearchingMed", payload: e.target.value })
         }
       />
-      <button className="submit-btn" onClick={medsOnPage}>
-        Submit
-      </button>
+      {searchingMed.length > 0 ? (
+        <button className="submit-btn" onClick={medsOnPage}>
+          Submit
+        </button>
+      ) : (
+        <button className="submit-btn" disabled>
+          ⚕ Search... 💉
+        </button>
+      )}
     </form>
   )
 }
